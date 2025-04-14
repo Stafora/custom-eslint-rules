@@ -14,13 +14,13 @@ ruleTester.run("no-var", rule, {
     valid: [
         "let a = 1;",
         "const b = 2;",
-        "let foo: string = 'bar';", // Тестируем с типами
+        "let foo: string = 'bar';",
     ],
     invalid: [
         {
             code: "var a = 1;",
             errors: [{ messageId: "noVar" }],
-            output: "let a = 1;", // Проверим автофикс
+            output: "let a = 1;",
         },
     ],
 });
