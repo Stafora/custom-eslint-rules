@@ -15,9 +15,7 @@ export default {
     create(context) {
         return {
             VariableDeclaration(node) {
-                // Если используем `var`, применяем правило
                 if (node.kind === "var") {
-                    // Убедимся, что позиции правильные
                     context.report({
                         node,
                         messageId: "noVar",

@@ -31,8 +31,10 @@ export default [
       ...tseslint.configs.recommended.rules,
       ...vue.configs["vue3-recommended"]?.rules,
       ...react.configs.recommended.rules,
-      // кастомные
+
+      // customs
       "custom/no-console-log": "warn",
+      "custom/only-camel-case": "warn",
       "custom/no-var": "warn"
     },
     settings: {
