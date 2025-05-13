@@ -1,51 +1,73 @@
-function toCamelCase(name) {
-    return name
-        .replace(/[_-]+(.)/g, (_, chr) => chr.toUpperCase()) // snake_case → camelCase
-        .replace(/^([A-Z])/, (_, chr) => chr.toLowerCase()); // PascalCase → camelCase
+function getEntityType(name, node) {
+    const kind = node.parent.kind;
+
+    const isPascal = /^[A-Z][a-zA-Z0-9]*$/.test(name);
+    const isCamel = /^[a-z][a-zA-Z0-9]*$/.test(name);
+    const isUpper = /^[A-Z_][A-Z0-9_]*$/.test(name);
+
+    const init = node.init;
+
+    const isFunction =
+        init && (init.type === "ArrowFunctionExpression" || init.type === "FunctionExpression");
+
+    const isReactComponent = kind === "const" && isPascal && isFunction;
+    const isReactContext =
+        init &&
+        init.type === "CallExpression" &&
+        init.callee.type === "Identifier" &&
+        init.callee.name === "createContext";
+
+    if (isReactComponent) return "component";
+    if (isReactContext) return "context";
+    if (kind === "const" && isUpper) return "const_upper";
+    if (isCamel) return "variable";
+    return "invalid";
+}
+
+function isValidNameForType(name, type) {
+    switch (type) {
+        case "component":
+        case "context":
+            return /^[A-Z][a-zA-Z0-9]*$/.test(name);
+        case "const_upper":
+            return /^[A-Z_][A-Z0-9_]*$/.test(name);
+        case "variable":
+            return /^[a-z][a-zA-Z0-9]*$/.test(name);
+        default:
+            return false;
+    }
 }
 
 export default {
     meta: {
         type: "problem",
         docs: {
-            description: "Prohibit the use of variable writing, all except camelCase (UPPER_CASE allowed for const)",
+            description: "Enforce camelCase for variables, PascalCase for components/contexts/classes, UPPER_CASE for const",
             category: "Best Practices",
             recommended: true,
         },
         messages: {
-            unexpected: "Unexpected variable name '{{name}}'. Use camelCase (or UPPER_CASE for const).",
+            unexpected: "Unexpected variable name '{{name}}'. Use camelCase, PascalCase (for components/contexts/classes), or UPPER_CASE for const.",
         },
-        fixable: "code",
+        fixable: null,
         schema: [],
     },
     create(context) {
-        const camelCaseRegex = /^[a-z][a-zA-Z0-9]*$/;
-        const upperCaseRegex = /^[A-Z_][A-Z0-9_]*$/;
-
         return {
             VariableDeclarator(node) {
                 if (node.id.type !== "Identifier") return;
 
                 const name = node.id.name;
-                if (!name) return;
+                const type = getEntityType(name, node);
 
-                const declarationKind = node.parent.kind;
-
-                let isValid = false;
-                if (declarationKind === "const") {
-                    isValid = camelCaseRegex.test(name) || upperCaseRegex.test(name);
-                } else {
-                    isValid = camelCaseRegex.test(name);
-                }
-
-                if (!isValid) {
+                if (!isValidNameForType(name, type)) {
                     context.report({
-                        node,
+                        node: node.id,
                         messageId: "unexpected",
-                        data: { name }
+                        data: { name },
                     });
                 }
-            },
+            }
         };
-    },
+    }
 };
