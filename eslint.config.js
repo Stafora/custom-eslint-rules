@@ -35,7 +35,8 @@ export default [
       // customs
       "custom/no-console-log": "warn",
       "custom/only-camel-case": "warn",
-      "custom/no-var": "warn"
+      "custom/no-var": "warn",
+      "custom/too-short": "warn"
     },
     settings: {
       react: {

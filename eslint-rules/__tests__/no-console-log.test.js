@@ -6,7 +6,12 @@ const ruleTester = new RuleTester({
     languageOptions: {
         ecmaVersion: 2020,
         sourceType: "module",
-        parser: tsParser
+        parser: tsParser,
+        parserOptions: {
+            ecmaFeatures: {
+                jsx: true
+            }
+        }
     }
 });
 
