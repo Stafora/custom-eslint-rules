@@ -15,12 +15,6 @@ export default {
         return {
             BlockStatement(node) {
                 if (node.body.length === 0) {
-                    // Check if it has comments (if we wanted to allow comments, but let's be strict for now or check comments)
-                    // Standard no-empty allows comments.
-                    // context.getSourceCode() is deprecated in v9 but let's see what version is used.
-                    // package.json says eslint ^9.23.0.
-                    // In v9, context.sourceCode is used.
-
                     const sourceCode = context.sourceCode;
                     const comments = sourceCode.getCommentsInside(node);
 
